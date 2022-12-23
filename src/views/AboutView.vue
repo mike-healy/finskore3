@@ -1,6 +1,10 @@
 <template>
   <div class="about">
-    <h1>This is an about page</h1>
+    <h1>Finskore for Finska</h1>
+    <p>
+      Finska is a fun outdoor throwing game. This is a web app to make it easier to keep score.<br>
+      It's open source &amp; <a href="https://github.com/mike-healy/finskore3.git" target="_blank" rel="noopener">on Github</a>.
+    </p>
   </div>
 </template>
 

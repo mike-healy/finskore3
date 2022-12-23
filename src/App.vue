@@ -5,8 +5,6 @@ import HelloWorld from './components/HelloWorld.vue'
 
 <template>
   <header>
-    <div class="thing">This is thing, maybe at 22% opacity?</div>
-
     <div class="wrapper">
       <HelloWorld msg="You did it!" />
 
@@ -22,13 +20,8 @@ import HelloWorld from './components/HelloWorld.vue'
 
 <style lang="scss" scoped>
 header {
-
   line-height: 1.5;
   max-height: 100vh;
-  .thing {
-    opacity: 0.22;
-    border: 2px solid blue;
-  }
 }
 
 nav {
