@@ -24,7 +24,7 @@ const positions = computed(() => {
 </script>
 
 <template>
-  <ul>
+  <ul class="leaderboard">
     <li v-for="(player, i) in players" :key="i">
       <span class="position">{{ player.position }}</span>
       {{ player.name }}
@@ -37,7 +37,11 @@ const positions = computed(() => {
 </template>
 
 <style>
- li {
+ul.leaderboard {
+  max-width: 400px;
+}
+
+.leaderboard li {
   display: grid;
   grid-template-columns: 3ch 1fr 8ch 4ch;
   column-gap: 1rem;
