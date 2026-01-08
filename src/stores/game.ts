@@ -4,7 +4,9 @@ interface Player {
   id: number,
   name: string,
   score: number,
-  // strikes
+  scores: number[],
+  position: number,
+  misses: number,
 }
 
 interface GameState {
@@ -15,7 +17,7 @@ interface GameState {
 export const useGameStore = defineStore('game', {
   state: () => ({
     players: [] as Player[],
-    targetScore: 50
+    targetScore: 50,
   }),
 
   actions: {
@@ -23,13 +25,15 @@ export const useGameStore = defineStore('game', {
       const newPlayer: Player = {
         id: this.players.length + 1,
         name,
-        score: 0
+        score: 0,
+        position: 0,
+        misses: 0,
       };
       this.players.push(newPlayer);
     },
 
     setTargetScore(score: number) {
-      this.targetScore = score;
+      this.targetScore = Math.max(1, score);
     }
   }
 

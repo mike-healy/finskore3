@@ -13,6 +13,8 @@ const newPlayerName = ref('');
     <h1>Finskore component</h1>
 
     <h2>Players</h2>
+    <p v-if="store.players.length === 0">No players yet. Add some.</p>
+
     <ul>
       <li v-for="player in store.players" :key="player.id">
         {{ player.name }} / <span style="color: gray;">{{ player.score }}</span>

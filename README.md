@@ -1,4 +1,9 @@
-# finskore3
+# Finskore3
+
+## Next steps
+- Push score to array, not just incrementing count
+- Reducer to calculate current score from history (keeping in mind going over limit)
+- Move type definitions somewhere central. Could probably be exactly like the React projects?
 
 This template should help get you started developing with Vue 3 in Vite.
 
