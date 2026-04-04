@@ -1,3 +1,9 @@
+DOING
+
+- Add players
+- Start the game (can no longer add players)
+- Enter a score (appends to the players array)
+
 # Finskore3
 
 ## Next steps
@@ -6,6 +12,10 @@
 - Move type definitions somewhere central. Could probably be exactly like the React projects?
 
 This template should help get you started developing with Vue 3 in Vite.
+
+## Tailwind
+There seems to be a HMR bug with Vite 7 and picking up new Tailwind styles.
+You'll need to refresh for new classes, though HMR works for JS changes.
 
 ## Recommended IDE Setup
 
