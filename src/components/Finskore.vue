@@ -1,16 +1,19 @@
 <script setup lang="ts">
 import Players from './Players.vue';
-import { ref } from 'vue';
+import { ref, nextTick } from 'vue';
 import { useGameStore } from '@/stores/game';
 
 const store = useGameStore();
 
 const newPlayerName = ref('');
+const playerNameInput = ref<HTMLInputElement | null>(null);
 
-const addPlayer = () => {
+const addPlayer = async () => {
   if (newPlayerName.value.trim()) {
     store.addPlayer(newPlayerName.value);
     newPlayerName.value = '';
+    await nextTick();
+    playerNameInput.value?.focus();
   }
 };
 
@@ -22,13 +25,13 @@ const handleKeyPress = (event: KeyboardEvent) => {
 </script>
 
 <template>
-  <div>
-    <h1>Finskore</h1>
+  <div class="mx-auto max-w-2xl p-6">
+    <h1 class="text-2xl font-bold mb-4">Finskore</h1>
 
     <!-- Setup Phase -->
     <div v-if="store.status === 'setup'">
-      <h2>Add Players</h2>
-      <p v-if="store.players.length === 0">Add at least 2 players to start the game.</p>
+      <h2 class="mb-2 text-gray-500">Add Players test</h2>
+      <p v-if="store.players.length === 0" class="font-bold">Add at least 2 players to start the game.</p>
 
       <ul v-if="store.players.length > 0">
         <li v-for="player in store.players" :key="player.id">
@@ -39,10 +42,12 @@ const handleKeyPress = (event: KeyboardEvent) => {
 
       <div>
         <input
+          ref="playerNameInput"
           type="text"
           placeholder="Player name"
           v-model="newPlayerName"
           @keypress="handleKeyPress"
+          class="border rounded p-1 bg-green-600 text-white me-2"
         >
         <button @click="addPlayer">Add Player</button>
       </div>
