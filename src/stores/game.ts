@@ -10,6 +10,40 @@ export interface Player {
 
 export type GameStatus = 'setup' | 'playing' | 'finished';
 
+// Compute a player's total from their full score history.
+// Standard Finska rule: any turn that takes the running total over the
+// target resets the total to 25. The history itself is preserved so past
+// turns can still be edited.
+export function computeTotal(scores: number[], target = 50): number {
+  let total = 0;
+
+  for (const s of scores) {
+    total += s;
+    if (total > target) total = Math.ceil(target / 2);
+  }
+  return total;
+}
+
+export interface AnnotatedScore {
+  score: number;
+  runningTotal: number; // total after the (possibly reset) turn
+  crashed: boolean;     // this turn pushed the player over the target
+}
+
+// Walk a score history and tag the turns where the player busted over
+// the target and got reset to 25. Used by the UI to mark crashes inline.
+export function annotateScores(scores: number[], target = 50): AnnotatedScore[] {
+  let total = 0;
+
+  return scores.map(score => {
+    total += score;
+
+    const crashed = total > target;
+    if (crashed) total = Math.ceil(target / 2);
+    return { score, runningTotal: total, crashed };
+  });
+}
+
 interface GameState {
   players: Player[];
   targetScore: number;
@@ -36,14 +70,14 @@ export const useGameStore = defineStore('game', {
     playerScores: (state) => {
       return state.players.map(player => ({
         ...player,
-        totalScore: player.scores.reduce((sum, s) => sum + s, 0),
+        totalScore: computeTotal(player.scores),
       }));
     },
 
     sortedByPosition: (state) => {
       const playersWithTotals = state.players.map(player => ({
         ...player,
-        totalScore: player.scores.reduce((sum, s) => sum + s, 0),
+        totalScore: computeTotal(player.scores),
       }));
 
       const sorted = [...playersWithTotals].sort((a, b) => b.totalScore - a.totalScore);
@@ -111,18 +145,12 @@ export const useGameStore = defineStore('game', {
         player.consecutiveMisses = 0;
       }
 
-      const totalScore = player.scores.reduce((sum, s) => sum + s, 0);
-
-      // Check for exact win
-      if (totalScore === this.targetScore) {
+      // Check for exact win. Going over 50 is handled by computeTotal
+      // on render, so the score history is preserved for editing.
+      if (computeTotal(player.scores, this.targetScore) === this.targetScore) {
         this.winnerId = player.id;
         this.status = 'finished';
         return;
-      }
-
-      // If over 50, reset to 25 (standard Finska rule)
-      if (totalScore > this.targetScore) {
-        player.scores = [25];
       }
 
       // Move to next active player
@@ -145,7 +173,6 @@ export const useGameStore = defineStore('game', {
 
       player.scores[scoreIndex] = newScore;
 
-      // Re-check win conditions after edit
       this.checkWinConditions();
     },
 
@@ -154,15 +181,7 @@ export const useGameStore = defineStore('game', {
       this.winnerId = null;
 
       for (const player of this.players) {
-        const totalScore = player.scores.reduce((sum, s) => sum + s, 0);
-
-        // If over 50 after edit, reset to 25
-        if (totalScore > this.targetScore) {
-          player.scores = [25];
-          continue;
-        }
-
-        if (totalScore === this.targetScore) {
+        if (computeTotal(player.scores, this.targetScore) === this.targetScore) {
           this.winnerId = player.id;
           this.status = 'finished';
           return;

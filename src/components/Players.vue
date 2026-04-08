@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { useGameStore } from '@/stores/game';
+import { useGameStore, computeTotal, annotateScores } from '@/stores/game';
 
 const props = withDefaults(defineProps<{
   showControls?: boolean;
@@ -17,9 +17,8 @@ const playersWithPositions = computed(() => {
   return store.sortedByPosition;
 });
 
-const getPlayerTotal = (scores: number[]) => {
-  return scores.reduce((sum, s) => sum + s, 0);
-};
+const getPlayerTotal = (scores: number[]) => computeTotal(scores, store.targetScore);
+const getAnnotatedScores = (scores: number[]) => annotateScores(scores, store.targetScore);
 
 const isCurrentPlayer = (playerId: number) => {
   return store.currentPlayer?.id === playerId;
@@ -81,7 +80,7 @@ const handleEditKeyPress = (event: KeyboardEvent) => {
         <!-- Score History -->
         <div class="score-history" v-if="player.scores.length > 0">
           <span>Scores: </span>
-          <span v-for="(score, index) in player.scores" :key="index" class="score-item">
+          <span v-for="(entry, index) in getAnnotatedScores(player.scores)" :key="index" class="score-item">
             <template v-if="editingScore?.playerId === player.id && editingScore?.scoreIndex === index">
               <input
                 type="number"
@@ -95,10 +94,12 @@ const handleEditKeyPress = (event: KeyboardEvent) => {
             </template>
             <template v-else>
               <button
-                @click="startEdit(player.id, index, score)"
+                @click="startEdit(player.id, index, entry.score)"
                 class="score-value"
-                :title="'Click to edit'"
-              >{{ score }}</button>
+                :class="{ crashed: entry.crashed }"
+                :title="entry.crashed ? `Busted over ${store.targetScore} — reset to 25` : 'Click to edit'"
+              >{{ entry.score }}</button>
+              <span v-if="entry.crashed" class="crash-marker" :title="`Busted over ${store.targetScore} — reset to 25`">😵 </span>
             </template>
             <span v-if="index < player.scores.length - 1">, </span>
           </span>
@@ -167,6 +168,17 @@ span.position {
 
 .score-value:hover {
   border-color: #999;
+}
+
+.score-value.crashed {
+  color: #c0392b;
+  font-weight: 700;
+}
+
+.crash-marker {
+  margin: 0 0.25rem;
+  font-size: 0.85em;
+  color: #c0392b;
 }
 
 .edit-input {
